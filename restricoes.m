@@ -1,5 +1,5 @@
 %
-% Conjunto de restrições do problema
+% Conjunto de restries do problema
 %
 % b = base da viga em cm
 % h = altura da viga em cm
@@ -10,50 +10,52 @@ function c = restricoes(b, h, L)
     hm = h / 100; % m
     bm = b / 100; % m
 
-    fck = 2; % 2 kN / cm² = 20 Mpa
+    fck = 2; % 2 kN / cm = 20 Mpa
     v = 0.552;
-    % Módulo de elasticidade secante do concreto
-    Ecs = 2128.74; % kN / cm²
-    fctf = 0.221; % kN / cm²
+    % Mdulo de elasticidade secante do concreto
+    Ecs = 2128.74; % kN / cm
+    fctf = 0.221; % kN / cm
     n = 9.865;
-    Es = 21000; % kN / cm²
+    Es = 21000; % kN / cm
 
-    fyk = 50; % 50 kN / cm² = 500 Mpa
+    fyk = 50; % 50 kN / cm = 500 Mpa
     % Carregamento permanente
     g = 22; % kN/m
-    % Carregamento variável
+    % Carregamento varivel
     q = 11; % kN/m
     Lcm = L * 100; % cm
 
-    % Resistência de cálculo do concreto e do aço
-    fcd = fck / 1.4; % kN / cm²
-    fcdm = fcd * 10000; % kN / m²
+    % Resistncia de clculo do concreto e do ao
+    fcd = fck / 1.4; % kN / cm
+    fcdm = fcd * 10000; % kN / m
 
-    % altura útil
+    % altura til
     d = 0.9 * h; % cm
     dm = d / 100; % m
 
-    % Carga do peso próprio
+    % Carga do peso prprio
     gpp = hm * bm * 25; % kN/m
 
     % Carregamento
     p = 1.4 * ( gpp + g + q ); % kN / m
 
     % Armadura longitudinal
-    % Momento de cálculo
+    % Momento de clculo
     Md = p * L * L / 8; % kNm
     Mdcm = Md * 100;
 
     % Momento limite
     Mdlim = 0.272 * bm * dm * dm * fcdm; % kNm
 
-    % Restrição 1 - para armadura simples
+    % 4.4 Dimensionamento devido ao Momento Fletor
+    % Restrio 1 - para armadura longitudinal simples
     c(1) = Md - Mdlim;
 
     % Altura da Linha neutra
     x = 1.25 * d * ( 1 - sqrt( 1 - ( Mdcm / ( 0.425 * b * d * d * fcd ) ) ) ); % cm
 
-    % Restrição 2 - verificaçao da ductilidade das estruturas
+    % 4.4 Dimensionamento devido ao Momento Fletor
+    % Restrio 2 - verificaao da ductilidade das estruturas
     c(2) = x - 0.5 * d;
     
     % Armadura longitudinal
@@ -61,43 +63,45 @@ function c = restricoes(b, h, L)
 
     roB = 0.85 * fck * 0.85 / ( fyk * ( 1 + fyk / ( 0.003 * Es ) ) );
 
-    % Restrição 3 - verificação da armadura máxima
+    % 4.1 Funções restrições
+    % Restrio 3 - verificao da armadura mxima
     c(3) = Asl / ( b * d ) - 0.5 * roB;
 
-    % Esforço cortante de cálculo
+    % Esforo cortante de clculo
     Vd = p * L / 2; % kN
 
-    % Força cortante de cálculo máxima resistida por compressão das bielas
+    % Fora cortante de clculo mxima resistida por compresso das bielas
     Vrd2 = 0.45 * b * d * v * fcd; % kN
 
-    % Restrição 4 - verificação das bielas comprimidas
+    % 4.5	Dimensionamento devido ao Esforço Cortante
+    % Restrio 4 - verificao das bielas comprimidas
     c(4) = Vd - Vrd2;
 
 
-    % Verificações no estado limite de serviço
+    % Verificaes no estado limite de servio
     % formulas.executarVerificacoes = ( Asl ) => {
-    % Momento de inércia da sessáo bruta
+    % Momento de inrcia da sesso bruta
     Ic = b * h * h * h / 12; % cm^4
 
     % Carregamento quase permanente
     Pqp = gpp + g + 0.4 * q; % kN / m
     Pqpcm = Pqp / 100; % kN / cm
 
-    % Flecha elástica        
+    % Flecha elstica        
     felastica = 5 * Pqpcm * Lcm * Lcm * Lcm * Lcm / ( 384 * Ecs * Ic ) * 10; % mm
 
     % Flecha imediata
 
-    % Momento fletor da ação quase permanente
+    % Momento fletor da ao quase permanente
     Mqp = Pqp * L * L / 8; % kNm
     Mqpcm = Mqp * 100; % kNcm
 
-    % Momento fletor de fissuração
+    % Momento fletor de fissurao
     Mr = b * h * h / 6 * fctf; % kNcm
 
     %a1, a2, a3, x2, I2, Ie;
-    if ( Mqpcm >= Mr ) % Estádio II com fissuração
-        % Momento de inércia da sessão no estádio II ( para armadura simples )
+    if ( Mqpcm >= Mr ) % Estdio II com fissurao
+        % Momento de inrcia da sesso no estdio II ( para armadura simples )
         a1 = b / 2;
         a2 = n * Asl;
         a3 = -n * Asl * d;
@@ -126,14 +130,15 @@ function c = restricoes(b, h, L)
     % Flecha limite
     flimite = L * 1000 / 250; % mm
 
-    % Restrição 5 - verificação da flecha total
+    % 4.6 Verificação de flecha
+    % Restrio 5 - verificao da flecha total
     c(5) = fTotal - flimite;
 
-    % Restrição 6 - segurança a instabilidade da viga NBR 6118
+    % Restrio 6 - segurana a instabilidade da viga NBR 6118
     c(6) = -b + 2*L;
-    % Restrição 7 - ???????
+    % Restrio 7 - segurana a instabilidade da viga NBR 6118
     c(7) = -h + 25;
-    % Restrição 8 - segurança a instabilidade da viga NBR 6118
+    % Restrio 8 - segurana a instabilidade da viga NBR 6118
     c(8) = -b + 0.4*h;
     
 end
