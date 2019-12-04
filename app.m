@@ -9,15 +9,15 @@ function resp = app(L)
     
     options = optimoptions(@fmincon,'Algorithm','sqp');
     [x1, fval1, exitflag1, output1] = fmincon(@objfungrad,x0,[],[],[],[],...
-        lb,ub,@confungrad,options);
+        lb,ub,@confungrad,options)
 
-    options = optimoptions(@fmincon,'Algorithm','...');
+    options = optimoptions(@fmincon,'Algorithm','interior-point');
     [x2, fval2, exitflag2, output2] = fmincon(@objfungrad,x0,[],[],[],[],...
-        lb,ub,@confungrad,options);
+        lb,ub,@confungrad,options)
     
-    options = optimoptions(@fmincon,'Algorithm','...');
+    options = optimoptions(@fmincon,'Algorithm','active-set');
     [x3, fval3, exitflag3, output3] = fmincon(@objfungrad,x0,[],[],[],[],...
-        lb,ub,@confungrad,options);
+        lb,ub,@confungrad,options)
 
     function f = objfungrad(x)
         f = custo(x(1), x(2), L);
@@ -27,14 +27,6 @@ function resp = app(L)
        c = restricoes(x(1), x(2), L);
        ceq = [];
     end
-
-    resp.x = x;
-    resp.fval = fval;
-    resp.exitflag = exitflag;
-    resp.output = output;
     
-    resp
-    output
-    valorTotal = fval * L
 end
 
