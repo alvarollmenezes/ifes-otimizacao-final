@@ -1,7 +1,7 @@
 function resp = app(L)
 
-    x0 = [3*L, 10*L];
-    % x0 = [-1, 1];
+    x0 = [0.4*10*L, 10*L];
+    % x0 = [1, 1];
     lb = [ ]; % No lower bounds
     ub = [ ]; % No upper bounds
     
